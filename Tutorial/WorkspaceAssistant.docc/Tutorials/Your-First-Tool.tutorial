@@ -1,0 +1,93 @@
+@Tutorial(time: 15, projectFiles: WorkspaceAssistant.zip) {
+    @Intro(title: "Your First Tool") {
+        Teach the agent something new: removing high priority from a task. You'll follow the same three steps every tool needs: a command, a tool, and registering it.
+
+        @Image(source: "wa-together.png", alt: "A task board with a finger tapping a tile.")
+    }
+
+    @Section(title: "Add the Command") {
+        @ContentAndMedia {
+            Start in `Workspace`, where every change lives. The command works for anyone; the agent's way in turns words into a task first.
+
+            @Image(source: "wa-diagram-commands.png", alt: "A tap and an agent tool both call the same Workspace command.")
+        }
+
+        @Steps {
+            @Step {
+                Add `deprioritize(_:by:)` next to `prioritize`, and `deprioritizeTask(_:)` next to `prioritizeTask`. Notice it says "Nothing changed." if the task isn't high priority.
+
+                @Code(name: "Workspace.swift", file: wa-06-workspace-01.swift, previousFile: wa-01-workspace-06.swift)
+            }
+        }
+    }
+
+    @Section(title: "Write and Register the Tool") {
+        @ContentAndMedia {
+            The tool is a thin adapter. Its description is what the model reads to decide when to use it.
+
+            @Image(source: "wa-diagram-tool.png", alt: "The parts of a tool.")
+        }
+
+        @Steps {
+            @Step {
+                In `Tools.swift`, replace the lab comment with `DeprioritizeTaskTool`.
+
+                @Code(name: "Tools.swift", file: wa-06-tools-01.swift, previousFile: wa-03-tools-04.swift)
+            }
+
+            @Step {
+                Register the tool in `makeSession(for:)`. Run the app and say "The memory leak can wait." Then try vaguer wording, and see whether the model still picks your tool.
+
+                @Code(name: "TaskAgent.swift", file: wa-06-taskagent-01.swift, previousFile: wa-05-taskagent-01.swift)
+            }
+        }
+    }
+
+    @Section(title: "Give the User the Same Power") {
+        @ContentAndMedia {
+            Anything the agent can do, the user should be able to do too.
+
+            @Image(source: "wa-preview-deprioritise.png", alt: "A tile’s menu with Deprioritise.")
+        }
+
+        @Steps {
+            @Step {
+                Add a **Deprioritise** item to the tile's context menu, calling `deprioritize(task.id, by: .user)`. New tools need the real model: the simulated agent only knows the four built-in ones.
+
+                @Code(name: "BoardView.swift", file: wa-06-boardview-01.swift, previousFile: wa-05-boardview-01.swift) {
+                    @Image(source: "wa-preview-deprioritise.png", alt: "A high-priority tile’s menu with Deprioritise.")
+                }
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            You said "The memory leak can wait" and the model didn't call your tool. What should you change first?
+
+            @Choice(isCorrect: true) {
+                The tool's description, so it clearly covers requests like this.
+
+                @Justification(reaction: "That's right!") {
+                    The description is the model's only guide to when the tool applies.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The code inside `deprioritize(_:by:)`.
+
+                @Justification(reaction: "Try again!") {
+                    The model never sees that code; it didn't get as far as calling it.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The tile's context menu.
+
+                @Justification(reaction: "Not quite.") {
+                    The menu is for the user; it doesn't affect the model.
+                }
+            }
+        }
+    }
+}

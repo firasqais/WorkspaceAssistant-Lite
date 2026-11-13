@@ -1,0 +1,101 @@
+@Tutorial(time: 15, projectFiles: WorkspaceAssistant.zip) {
+    @Intro(title: "Giving the Agent Tools") {
+        A tool is a Swift function the model may decide to call. Write four of them, each a thin adapter over one `Workspace` command.
+
+        @Image(source: "wa-agent.png", alt: "A chat with an AI agent showing the actions it took.")
+    }
+
+    @Section(title: "Write the Four Tools") {
+        @ContentAndMedia {
+            Every tool has three parts. Its `name` and `description` tell the model **when** to use it. Its `@Generable` `Arguments` say **what** the model must fill in. Its `call(arguments:)` runs your code and returns **what really happened**.
+
+            Add an **Agent** folder for the agent's files.
+
+            @Image(source: "wa-diagram-tool.png", alt: "The parts of a tool: name and description, arguments, and call.")
+        }
+
+        @Steps {
+            @Step {
+                Create `Tools.swift` and add `AddTaskTool`. `@Guide` describes each argument to the model, and `category` reuses the `@Generable` enum from the model layer.
+
+                @Code(name: "Tools.swift", file: wa-03-tools-01.swift)
+            }
+
+            @Step {
+                Add `CompleteTaskTool`. The model passes the user's own words, such as "unit tests", and `completeTask` turns them into one task. The `await` is needed because `Workspace` lives on the main actor.
+
+                @Code(name: "Tools.swift", file: wa-03-tools-02.swift)
+            }
+
+            @Step {
+                Add `PrioritizeTaskTool`. Same shape, different command. Notice how little is in each tool: all the logic lives in `Workspace`.
+
+                @Code(name: "Tools.swift", file: wa-03-tools-03.swift)
+            }
+
+            @Step {
+                Add `SwitchLayoutTool`. Its argument is the `BoardLayout` enum itself, so the model can only choose grid, list or board. Leave the comment at the end; it marks where you'll add your own tool in the last tutorial.
+
+                @Code(name: "Tools.swift", file: wa-03-tools-04.swift)
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            Where should the logic for changing a task live?
+
+            @Choice(isCorrect: false) {
+                Inside each tool's `call(arguments:)`.
+
+                @Justification(reaction: "Try again!") {
+                    Then the user's taps would need a second copy of the same logic.
+                }
+            }
+
+            @Choice(isCorrect: true) {
+                In `Workspace`, so taps and tools share it.
+
+                @Justification(reaction: "That's right!") {
+                    Tools stay thin adapters, and the agent can never do anything the user couldn't.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                In the model's instructions.
+
+                @Justification(reaction: "Not quite.") {
+                    Instructions guide the model's choices; the actual change must happen in Swift.
+                }
+            }
+        }
+
+        @MultipleChoice {
+            What does the model use to decide which tool to call?
+
+            @Choice(isCorrect: true) {
+                The tool's name, description and argument guides.
+
+                @Justification(reaction: "Correct!") {
+                    They are the contract the model reads, so write them as carefully as an API.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The Swift code inside `call(arguments:)`.
+
+                @Justification(reaction: "Try again!") {
+                    The model never sees your implementation.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The order the tools are registered in.
+
+                @Justification(reaction: "Not quite.") {
+                    Order doesn't tell the model what a tool does.
+                }
+            }
+        }
+    }
+}

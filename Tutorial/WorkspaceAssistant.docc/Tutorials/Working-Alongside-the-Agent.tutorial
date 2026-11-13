@@ -1,0 +1,119 @@
+@Tutorial(time: 20, projectFiles: WorkspaceAssistant.zip) {
+    @Intro(title: "Working Alongside the Agent") {
+        Let the user change the board too, using the very same commands as the agent, and keep the demo running on Macs without Apple Intelligence.
+
+        @Image(source: "wa-together.png", alt: "A task board with a finger tapping a tile.")
+    }
+
+    @Section(title: "Add Tasks Yourself") {
+        @ContentAndMedia {
+            The user gets a form to add a task. It calls `addTask`, the same command the agent's `AddTaskTool` calls, with `by: .user`.
+
+            @Image(source: "wa-preview-newtask.png", alt: "The New Task form.")
+        }
+
+        @Steps {
+            @Step {
+                Create `NewTaskSheet.swift` with a form for the title, category and priority.
+
+                @Code(name: "NewTaskSheet.swift", file: wa-05-newtask-01.swift) {
+                    @Image(source: "wa-preview-newtask.png", alt: "The New Task form over the board.")
+                }
+            }
+
+            @Step {
+                Add **Cancel** and **Add** buttons. **Add** calls `workspace.addTask(…, by: .user)`, so the task appears on the board but not as a chip in the chat.
+
+                @Code(name: "NewTaskSheet.swift", file: wa-05-newtask-02.swift) {
+                    @Image(source: "wa-preview-newtask.png", alt: "The New Task form over the board.")
+                }
+            }
+
+            @Step {
+                In `ContentView`, replace `showsAgent` with a `Sheet` enum and `.sheet(item:)`. Only one sheet shows at a time, so opening the form closes the agent instead of the two clashing. Add a **+** button to the toolbar.
+
+                @Code(name: "ContentView.swift", file: wa-05-contentview-01.swift, previousFile: wa-04-contentview-01.swift) {
+                    @Image(source: "wa-preview-contentview-plus.png", alt: "The board with a plus button and the new high-priority task first.")
+                }
+            }
+        }
+    }
+
+    @Section(title: "Press and Hold a Tile") {
+        @ContentAndMedia {
+            A context menu gives the user their own versions of the agent's commands. Tapping a tile still completes or reopens it.
+
+            @Image(source: "wa-preview-context-menu.png", alt: "A tile’s context menu.")
+        }
+
+        @Steps {
+            @Step {
+                Add a `.contextMenu` to each tile with **Prioritise**, **Complete** or **Reopen**, and **Delete**. They call the same commands with `by: .user`, so only the agent's changes show up in the chat.
+
+                @Code(name: "BoardView.swift", file: wa-05-boardview-01.swift, previousFile: wa-02-boardview-04.swift) {
+                    @Image(source: "wa-preview-context-menu.png", alt: "A tile’s menu with Prioritise, Complete and Delete.")
+                }
+            }
+        }
+    }
+
+    @Section(title: "Keep the Demo Working on Any Mac") {
+        @ContentAndMedia {
+            The simulator uses the Mac's Apple Intelligence, so on a Mac where it's turned off or unsupported the agent can't run. A simple stand-in keeps the demo working, clearly labelled so nobody mistakes it for the model.
+
+            @Image(source: "wa-preview-simulated.png", alt: "The Simulated agent note.")
+        }
+
+        @Steps {
+            @Step {
+                Add `SimulatedAgent.swift` to the **Agent** folder. It isn't AI: it spots keywords such as "finished" or "board" and calls the same `Workspace` commands as the real tools, with short pauses so changes land one at a time.
+
+                @Code(name: "SimulatedAgent.swift", file: wa-05-simulated-01.swift)
+            }
+
+            @Step {
+                In `send(_:)`, use the simulated agent when `unavailableReason` isn't `nil`.
+
+                @Code(name: "TaskAgent.swift", file: wa-05-taskagent-01.swift, previousFile: wa-04-taskagent-04.swift)
+            }
+
+            @Step {
+                In `AgentPanel`, replace the warning with a "Simulated agent" note. Run the app on a simulator with Apple Intelligence off and try the suggestions.
+
+                @Code(name: "AgentPanel.swift", file: wa-05-agentpanel-01.swift, previousFile: wa-04-agentpanel-02.swift) {
+                    @Image(source: "wa-preview-simulated.png", alt: "The agent panel showing the Simulated agent note.")
+                }
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            What is different between the user deleting a task from the menu and the agent changing a task with a tool?
+
+            @Choice(isCorrect: false) {
+                They use different code to change the board.
+
+                @Justification(reaction: "Try again!") {
+                    Both call the same `Workspace` commands.
+                }
+            }
+
+            @Choice(isCorrect: true) {
+                Only the `by:` argument, which decides whether the change shows as a chip in the chat.
+
+                @Justification(reaction: "That's right!") {
+                    One code path for both means the agent can't do anything the user couldn't.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The agent's changes don't animate.
+
+                @Justification(reaction: "Not quite.") {
+                    The board animates every change, whoever made it.
+                }
+            }
+        }
+    }
+}

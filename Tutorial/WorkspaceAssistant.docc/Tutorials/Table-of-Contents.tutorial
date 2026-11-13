@@ -1,0 +1,34 @@
+@Tutorials(name: "WorkspaceAssistant") {
+    @Intro(title: "Build an On-Device AI Agent") {
+        Build Workspace Assistant: a task board that an AI agent changes for you while you watch. You'll model the board, draw it in SwiftUI, give Apple's Foundation Models framework tools to call, and let the user and the agent work side by side. Everything runs on the device.
+
+        @Image(source: "wa-hero.png", alt: "A board of coloured task tiles next to a chat with an AI agent.")
+    }
+
+    @Chapter(name: "The Board") {
+        Model the tasks and draw them in three layouts. Every change the agent will make later already exists here, as a plain Swift method.
+
+        @Image(source: "wa-board.png", alt: "A grid of coloured task tiles.")
+
+        @TutorialReference(tutorial: "doc:Modelling-the-Board")
+        @TutorialReference(tutorial: "doc:Drawing-the-Board")
+    }
+
+    @Chapter(name: "The Agent") {
+        Give the model tools, open a session, and watch the agentic loop change the board while the chat shows each step.
+
+        @Image(source: "wa-agent.png", alt: "A chat with an AI agent showing the actions it took.")
+
+        @TutorialReference(tutorial: "doc:Giving-the-Agent-Tools")
+        @TutorialReference(tutorial: "doc:Talking-to-the-Agent")
+    }
+
+    @Chapter(name: "Working Together") {
+        Let the user and the agent share the board, keep the demo running on any Mac, and write your first tool.
+
+        @Image(source: "wa-together.png", alt: "A task board with a finger tapping a tile.")
+
+        @TutorialReference(tutorial: "doc:Working-Alongside-the-Agent")
+        @TutorialReference(tutorial: "doc:Your-First-Tool")
+    }
+}

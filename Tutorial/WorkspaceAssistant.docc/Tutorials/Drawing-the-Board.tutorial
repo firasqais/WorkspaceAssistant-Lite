@@ -1,0 +1,115 @@
+@Tutorial(time: 25, projectFiles: WorkspaceAssistant.zip) {
+    @Intro(title: "Drawing the Board") {
+        Draw the board in SwiftUI. Because the views only read `Workspace`, every change, whether from a tap or from the agent, animates in by itself.
+
+        @Image(source: "wa-board.png", alt: "A grid of coloured task tiles.")
+    }
+
+    @Section(title: "Draw a Task Tile") {
+        @ContentAndMedia {
+            Add a **Views** folder. A tile is drawn in one of three styles: a large tile for the grid, a row for the list, and a compact card for the board's columns.
+
+            @Image(source: "wa-preview-tile-styles.png", alt: "Task tiles in three styles.")
+        }
+
+        @Steps {
+            @Step {
+                Create `BoardView.swift` and add `TaskTile`, plus a colour and a symbol for every category and layout.
+
+                @Code(name: "BoardView.swift", file: wa-02-boardview-01.swift) {
+                    @Image(source: "wa-preview-tile-styles.png", alt: "Task tiles in the tile, row and compact styles.")
+                }
+            }
+
+            @Step {
+                Make the tile pulse whenever its task changes. `revision` goes up on every change, so `phaseAnimator` fires once per change, whoever made it, and the icon bounces with `symbolEffect`.
+
+                @Code(name: "BoardView.swift", file: wa-02-boardview-02.swift) {
+                    @Image(source: "wa-preview-tile-pulse.png", alt: "A high-priority tile pulsing with a coloured glow.")
+                }
+            }
+        }
+    }
+
+    @Section(title: "Lay Out the Board") {
+        @ContentAndMedia {
+            `BoardView` reads `Workspace` from the environment and draws its tasks. It never changes them itself; tapping a tile calls a command.
+
+            @Image(source: "wa-preview-layouts.png", alt: "The board in three layouts.")
+        }
+
+        @Steps {
+            @Step {
+                Add `BoardView` with a grid of tiles. `.animation(_:value:)` on the tasks makes every change animate, with no animation code in the commands.
+
+                @Code(name: "BoardView.swift", file: wa-02-boardview-03.swift) {
+                    @Image(source: "wa-preview-grid.png", alt: "A grid of six coloured task tiles.")
+                }
+            }
+
+            @Step {
+                Add the list and the board with Priority, To Do and Done columns. `matchedGeometryEffect` lets tiles fly to their new place when the layout changes, and `sensoryFeedback` plays a haptic each time the agent acts.
+
+                @Code(name: "BoardView.swift", file: wa-02-boardview-04.swift) {
+                    @Image(source: "wa-preview-layouts.png", alt: "The board as a grid, a list, and Priority, To Do and Done columns.")
+                }
+            }
+        }
+    }
+
+    @Section(title: "Show the Board") {
+        @ContentAndMedia {
+            Put the board on screen, with a menu to switch layout or start again, and create the workspace once for the whole app.
+
+            @Image(source: "wa-preview-contentview.png", alt: "The My Tasks screen.")
+        }
+
+        @Steps {
+            @Step {
+                Replace the template's `ContentView` with a navigation stack, the board, and a toolbar menu. `@Bindable` lets the picker change `workspace.layout` directly.
+
+                @Code(name: "ContentView.swift", file: wa-02-contentview-01.swift) {
+                    @Image(source: "wa-preview-contentview.png", alt: "The My Tasks screen with a layout menu button.")
+                }
+            }
+
+            @Step {
+                In `WorkspaceAssistantApp.swift`, create the workspace and pass it to every view through the environment. Run the app: tap tiles to complete them and switch layouts from the menu.
+
+                @Code(name: "WorkspaceAssistantApp.swift", file: wa-02-app-01.swift) {
+                    @Image(source: "wa-preview-contentview.png", alt: "The My Tasks screen with a layout menu button.")
+                }
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            When the agent completes a task, what makes its tile slide into place with an animation?
+
+            @Choice(isCorrect: false) {
+                The tool calls `withAnimation`.
+
+                @Justification(reaction: "Try again!") {
+                    The tools and commands contain no UI code at all.
+                }
+            }
+
+            @Choice(isCorrect: true) {
+                `BoardView` animates whenever `workspace.tasks` changes.
+
+                @Justification(reaction: "That's right!") {
+                    The view watches the state. Any change, from any source, animates the same way.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The `Workspace` class sends a notification.
+
+                @Justification(reaction: "Not quite.") {
+                    `@Observable` tracks the properties the view reads; no notifications are needed.
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,151 @@
+@Tutorial(time: 20, projectFiles: WorkspaceAssistant.zip) {
+    @Intro(title: "Modelling the Board") {
+        Every agent needs something to act on. Start with the data: tasks, their categories, and a `Workspace` class that is the only place the board can change.
+
+        @Image(source: "wa-board.png", alt: "A grid of coloured task tiles.")
+    }
+
+    @Section(title: "Describe a Task") {
+        @ContentAndMedia {
+            Create a new iOS App project named **WorkspaceAssistant** in Xcode 26 or later, with SwiftUI and iOS 26 as the deployment target. Add a **Model** folder.
+
+            A task has a title, a category and two flags. The category and the layout are enums marked `@Generable`, so the model can use them directly as tool arguments later.
+
+            @Image(source: "wa-diagram-task.png", alt: "A task tile next to the TaskItem properties.")
+        }
+
+        @Steps {
+            @Step {
+                Create `TaskItem.swift` with the `TaskItem` struct and the `TaskCategory` enum. Because `TaskCategory` is `@Generable`, the model will only ever be able to choose one of these four values.
+
+                @Code(name: "TaskItem.swift", file: wa-01-taskitem-01.swift)
+            }
+
+            @Step {
+                Add `BoardLayout`, also `@Generable`, so the agent will be able to change how the board looks.
+
+                @Code(name: "TaskItem.swift", file: wa-01-taskitem-02.swift)
+            }
+
+            @Step {
+                Add the sample tasks every demo starts from. `revision` goes up on every change; the tiles will use it to pulse.
+
+                @Code(name: "TaskItem.swift", file: wa-01-taskitem-03.swift)
+            }
+        }
+    }
+
+    @Section(title: "Create the Workspace") {
+        @ContentAndMedia {
+            `Workspace` holds the board and is the **only** place it changes. Each change is a command method. Later, the user's taps and the agent's tools will call exactly these methods, so the AI can never do anything the user couldn't.
+
+            @Image(source: "wa-diagram-commands.png", alt: "A tap and an agent tool both call the same Workspace command.")
+        }
+
+        @Steps {
+            @Step {
+                Create `Workspace.swift`. `AgentAction` records what the agent did, `ChangedBy` tells a tap from a tool call, and `orderedTasks` puts high-priority tasks first.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-01.swift)
+            }
+
+            @Step {
+                Add the first command, `addTask`, and the `record` helper. Every command returns a short sentence. When the agent calls a tool, that sentence is all the model sees of what happened, so it must be true.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-02.swift)
+            }
+
+            @Step {
+                Add commands to complete, prioritise and delete a task, and to change the layout. Each one checks first and says "Nothing changed." rather than pretending.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-03.swift)
+            }
+
+            @Step {
+                Add `toggleDone` for taps on a tile, and `reset` so you can run the demo again.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-04.swift)
+            }
+        }
+    }
+
+    @Section(title: "Let the Agent Name Tasks in Its Own Words") {
+        @ContentAndMedia {
+            The model doesn't know task IDs. It will say "the unit tests". Give the agent its own way in: turn the words into one task, then run the same command a tap would.
+
+            @Image(source: "wa-diagram-findtask.png", alt: "findTask turns the user’s words into one task, or reports that it can’t.")
+        }
+
+        @Steps {
+            @Step {
+                Add `findTask`, which matches words like "unit tests" to "Write Unit Test Suite". It returns `nil` when nothing matches, or when more than one task does. `problem` then tells the model honestly what went wrong, so it can ask the user instead of guessing.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-05.swift)
+            }
+
+            @Step {
+                Add `completeTask` and `prioritizeTask`. They find the task, then call the very same commands as a tap, with `by: .agent`.
+
+                @Code(name: "Workspace.swift", file: wa-01-workspace-06.swift)
+            }
+        }
+    }
+
+    @Assessments {
+        @MultipleChoice {
+            Why does every `Workspace` command return a sentence?
+
+            @Choice(isCorrect: false) {
+                SwiftUI needs a string to redraw the board.
+
+                @Justification(reaction: "Try again!") {
+                    SwiftUI redraws from the observed state, not from return values.
+                }
+            }
+
+            @Choice(isCorrect: true) {
+                It's what the model reads after calling a tool, so it can report what really happened.
+
+                @Justification(reaction: "That's right!") {
+                    The tool result is the model's only view of the outcome. Keep it short and true.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                Taps in the UI need it to work.
+
+                @Justification(reaction: "Not quite.") {
+                    Taps ignore the result. That's why the commands are marked `@discardableResult`.
+                }
+            }
+        }
+
+        @MultipleChoice {
+            What does marking `TaskCategory` as `@Generable` give you?
+
+            @Choice(isCorrect: true) {
+                The model can use it as a tool argument and can only pick one of its cases.
+
+                @Justification(reaction: "Correct!") {
+                    Guided generation constrains the output, so the model can't invent a fifth category.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                The enum is saved to disk automatically.
+
+                @Justification(reaction: "Try again!") {
+                    `@Generable` is about model output, not persistence.
+                }
+            }
+
+            @Choice(isCorrect: false) {
+                SwiftUI can show it in a `Picker`.
+
+                @Justification(reaction: "Not quite.") {
+                    A `Picker` works with any `Hashable` value; `@Generable` isn't needed for that.
+                }
+            }
+        }
+    }
+}
