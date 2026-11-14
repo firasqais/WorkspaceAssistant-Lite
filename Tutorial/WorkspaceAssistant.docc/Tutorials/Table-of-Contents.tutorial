@@ -2,6 +2,8 @@
     @Intro(title: "Build an On-Device AI Agent") {
         Build Workspace Assistant: a task board that an AI agent changes for you while you watch. You'll model the board, draw it in SwiftUI, give Apple's Foundation Models framework tools to call, and let the user and the agent work side by side. Everything runs on the device.
 
+        New to some of the Swift? Keep the <doc:Swift-Code-Guide> open as you go: it explains every keyword and attribute these tutorials use, such as `@Observable`, `private(set)`, `@MainActor` and `@Generable`.
+
         @Image(source: "wa-hero.png", alt: "A board of coloured task tiles next to a chat with an AI agent.")
     }
 

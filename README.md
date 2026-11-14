@@ -113,6 +113,7 @@ scroll, app previews, quizzes and a project download, in the style of Apple's Sw
 | `Tutorial/Preview Tutorial.command` | Double-click to serve the DocC tutorial from your Mac |
 | `Tutorial/Export Tutorial.command` | Double-click to make a `.doccarchive` that opens in Xcode |
 | `Tutorial/WorkspaceAssistant.docc` | The DocC source |
+| [`Swift-Code-Guide.md`](Swift-Code-Guide.md) | Every Swift keyword and attribute the tutorials use (`@Observable`, `private(set)`, `@MainActor`, `@Generable`…), explained with the app's own code. Also a page in the tutorial |
 
 | Chapter | Tutorial | Builds |
 |---------|----------|--------|

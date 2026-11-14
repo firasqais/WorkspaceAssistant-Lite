@@ -2,6 +2,8 @@
     @Intro(title: "Modelling the Board") {
         Every agent needs something to act on. Start with the data: tasks, their categories, and a `Workspace` class that is the only place the board can change.
 
+        Meet a keyword you don't know? Look it up in the <doc:Swift-Code-Guide>.
+
         @Image(source: "wa-board.png", alt: "A grid of coloured task tiles.")
     }
 
