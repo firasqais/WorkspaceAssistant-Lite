@@ -21,7 +21,7 @@ final class TaskAgent {
     private(set) var messages: [Message] = []
     private(set) var isWorking = false
     private var firstActionOfTurn = 0
-    private var session: LanguageModelSession
+    private var session: LanguageModelSession //The core Apple FoundationModels object that remembers the ongoing chat and runs the "agentic loop" (deciding when to call tools, reading their results, and writing a final reply).
 
     init(workspace: Workspace) {
         self.workspace = workspace
@@ -29,7 +29,10 @@ final class TaskAgent {
     }
 
     // MARK: - Session
-
+/* Creates a fresh LanguageModelSession by handing it three things:
+    1. The Model: SystemLanguageModel.default (Apple's built-in on-device LLM).
+    2. The Tools: The array of 4 tools (AddTaskTool, CompleteTaskTool, etc.)—this is where you'll add DeprioritizeTaskTool for the lab!
+    3. The Instructions (System Prompt): Strict rules telling the AI how to behave (e.g., never lie about changing the board unless a tool actually confirmed it, keep replies to one short friendly sentence) plus a snapshot of the starting task titles. */
     private static func makeSession(for workspace: Workspace) -> LanguageModelSession {
         let tools: [any Tool] = [
             AddTaskTool(workspace: workspace),
@@ -50,12 +53,14 @@ final class TaskAgent {
     }
 
     /// Forgets the conversation. The board is not touched.
+    /// Clears the chat bubbles and creates a fresh session so the AI forgets previous messages without deleting any tasks on your board.
     func newConversation() {
         messages.removeAll()
         session = Self.makeSession(for: workspace)
     }
 
     /// Loads the model early so the first reply is faster.
+    /// Quietly wakes up the on-device model in the background (likely called when the app launches) so the user doesn't experience a delay on their first message.
     func prewarm() {
         if unavailableReason == nil { session.prewarm() }
     }
@@ -63,10 +68,16 @@ final class TaskAgent {
     // MARK: - Talking to the model
 
     /// What the tools have done so far in the current turn, shown live while the model works.
+    /// Tracks actions added to workspace.actions since the current turn started (dropFirst(firstActionOfTurn)), letting your UI show live badges (like "Added 'Fix Bug'") while the AI is still thinking.
     var liveActions: [AgentAction] {
         isWorking ? Array(workspace.actions.dropFirst(firstActionOfTurn)) : []
     }
 
+    /* send(_ text:):
+    1. Guard & Setup: Trims whitespace, ignores empty messages or double-taps while isWorking is true, adds the user's message bubble, and uses defer { isWorking = false } to guarantee the loading spinner turns off when the function finishes.
+    2. Simulator Fallback: If Apple Intelligence isn't available (unavailableReason != nil), it falls back to SimulatedAgent so you can still test the app on an older Mac or Xcode Simulator.
+    3. Running the AI (try await session.respond(to: prompt)): Sends the prompt to the model. Behind the scenes, the model may call multiple tools in a row before returning response.content, which gets appended as an .agent message.
+    4. Context Window Recovery: On-device models have a relatively small memory limit. If the chat gets too long (exceededContextWindowSize), it automatically resets session and asks the user to retry. */
     func send(_ text: String) async {
         let prompt = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !prompt.isEmpty, !isWorking else { return }
@@ -99,7 +110,7 @@ final class TaskAgent {
     }
 
     // MARK: - Availability
-
+///Inspects SystemLanguageModel.default.availability and translates Apple's status codes into friendly, human-readable messages explaining why Apple Intelligence isn't ready (unsupported hardware, turned off in Settings, or still downloading).
     /// `nil` when Apple Intelligence is ready, otherwise what to tell the user.
     var unavailableReason: String? {
         switch SystemLanguageModel.default.availability {
@@ -116,3 +127,4 @@ final class TaskAgent {
         }
     }
 }
+

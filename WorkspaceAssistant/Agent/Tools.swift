@@ -14,9 +14,9 @@ struct AddTaskTool: Tool {
     let description = "Adds a new task to the board."
     let workspace: Workspace
 
-    @Generable
+    @Generable //Because it uses @Generable, the model is guaranteed to return valid Swift types (like a TaskCategory or Bool) instead of messy, unpredictable text.
     struct Arguments {
-        @Guide(description: "A short task title in Title Case, e.g. 'Review Pull Requests'")
+        @Guide(description: "A short task title in Title Case, e.g. 'Review Pull Requests'") //@Guide(description: ...): Fine-grained hints attached to specific fields to steer the AI's formatting (e.g., forcing Title Case or clarifying when highPriority should be true).
         var title: String
         var category: TaskCategory
         @Guide(description: "True only if the user says the task is important, urgent or high priority")
@@ -38,7 +38,7 @@ struct CompleteTaskTool: Tool {
         @Guide(description: "The user's words for the task, e.g. 'unit tests'")
         var task: String
     }
-
+//func call(arguments:): The actual Swift code that runs once the AI fills in the arguments. It passes those values into workspace, updates the UI (triggering those bounce and pulse animations from BoardView), and returns a String confirming what happened so the AI can reply naturally to the user.
     func call(arguments: Arguments) async throws -> String {
         await workspace.completeTask(arguments.task)
     }
